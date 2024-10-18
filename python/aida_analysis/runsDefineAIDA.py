@@ -1,11 +1,11 @@
 import numpy as np
 
-namelist_fn='/namelist-aida-ice.in'
+namelist_fn='/namelist-aida.in'
 NaClMR= np.logspace(-14,-4,50)
 
 w_flag=False
-totM1=1000.e6
-# totM1=5000.e6
+#totM1=1000.e6
+totM1=3000.e6
 winit=1.3
 logSig=0.5
 Dm=100.e-9
@@ -13,12 +13,12 @@ Dm=100.e-9
 N_aer=NaClMR / (np.pi/6.*2165.*np.exp(3.*np.log(Dm)+4.5*logSig**2))
     
 
-N_aer=np.linspace(0.0,10000e6,50)
+N_aer=np.linspace(0.0,5000e6,50)
 if w_flag:
 	winit=np.linspace(0.01,10,50)
 
-psd_type1=1006 # psd of the background aerosol
-psd_type=1 # psd of the added aerosol
+psd_type1=2 # psd of the background aerosol
+psd_type=2 # psd of the added aerosol
 
 if psd_type==1:
 	N2=np.array([0.49,0.38])

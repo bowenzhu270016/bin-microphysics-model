@@ -192,8 +192,8 @@ def plot_model_run(fileName='/tmp/output1.nc'):
     
     
     
-    
-    fig.savefig('/tmp/' + username + '/Test.png')
+    print("Saving figure to /home/bowen/Test.png")
+    fig.savefig('/home/bowen/Test.png')
 
     
     

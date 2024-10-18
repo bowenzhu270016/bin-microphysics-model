@@ -33,7 +33,7 @@ def doAnalysis():
 
 if __name__=="__main__":
 
-    lut_flag=2
+    lut_flag=0
     
     lut1,lut2,lut3=doAnalysis()
     
