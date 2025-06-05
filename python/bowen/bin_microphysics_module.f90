@@ -27,7 +27,7 @@
         						gam_fac_ent2=1._wp+0.5_wp, &
         						onethird=1._wp/3._wp, &
         						twothirds=2._wp/3._wp, fourthirds=4._wp/3._wp
-        logical :: l_inhom, dcmex=.true.		
+        logical :: l_inhom		
 
         type parcel
             ! variables for bin model
@@ -2760,12 +2760,12 @@
 		real(wp), intent(in) :: t,naer05
 		real(wp) :: demott_2010
 		real(wp) :: tc, log_ns, ns, adust, ninp1, ninp2
-		
+		logical :: dcmex=.true.
+		tc=ttr-t
 		if (dcmex) then
-                        tc=t-ttr
 			! dcmex data paper
 			demott_2010=0.0_wp
-			if (tc .lt. -4._wp) then
+			if (tc < -4._wp) then
 				log_ns = -3.25_wp + (-0.793_wp*tc) + (-6.91e-2_wp*tc**2) + &
 					(-4.17e-3_wp*tc**3) + &
 					(-1.05e-4_wp*tc**4) + (-9.08e-7_wp*tc**5)
@@ -2778,9 +2778,13 @@
 			
 				ninp2=1000.0_wp*exp(-50.0_wp+45.25_wp*(-4._wp-tc)**0.046_wp)
 				demott_2010=ninp1+ninp2
+				print*, "DEBUG: tc =", tc
+				print*, "DEBUG: log_ns =", log_ns, "ns =", ns
+				print*, "DEBUG: adust =", adust
+				print*, "DEBUG: ninp1 =", ninp1, "ninp2 =", ninp2
+				print*, "DEBUG: demott_2010 =", demott_2010
 			endif 
 		else
-                        tc=ttr-t
 			! equation 1 from
 			! https://www.pnas.org/content/107/25/11217
 			! number per std m^3
@@ -2890,11 +2894,9 @@
 		enddo  
 		! calculate the number of ice crystals according to DeMott et al. 2010
 		nprimary=demott_2010(t,naer05)
-		if(dcmex.eqv..false.) then
-			! ensure the number nucleated is less than the number that can nucleate
-			nprimary=min(naer05,nprimary) 
-			! this is ice moments for total number of monomers (ncomps+2)
-		endif
+		! ensure the number nucleated is less than the number that can nucleate
+		nprimary=min(naer05,nprimary) 
+		! this is ice moments for total number of monomers (ncomps+2)
 		nprimary=max(nprimary-sum(dn01+moments(nbinw+1:2*nbinw,ncomps+2)),0._wp)
 		!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 		! deplete the aerosols larger than 0.5 microns
@@ -2902,12 +2904,7 @@
 		!       it is doing it for all modes - in reverse order)
 		do i=nbinw,1,-1
 			if (nprimary.le.0._wp) exit
-			if (((dd(i).gt.0.5e-6_wp).and.(rh.ge.1._wp)).and.(dcmex.eqv..false.)) then
-				! it can nucleate: reduce number of primary ice
-				dn01(i)=dn01(i)+min(nprimary,npart(i)-dn01(i))
-				nprimary=nprimary-min(npart(i)-dn01(i),nprimary)
-			endif
-			if ((rh.ge.1._wp).and.dcmex) then
+			if ((dd(i).gt.0.5e-6_wp).and.(rh.ge.1._wp)) then
 				! it can nucleate: reduce number of primary ice
 				dn01(i)=dn01(i)+min(nprimary,npart(i)-dn01(i))
 				nprimary=nprimary-min(npart(i)-dn01(i),nprimary)
